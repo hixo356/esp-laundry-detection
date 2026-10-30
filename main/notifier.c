@@ -18,6 +18,9 @@
 #define WIFI_CONNECTED_BIT  BIT0
 #define WIFI_FAILED_BIT     BIT1
 #define WIFI_TIMEOUT_MS     20000
+#define WIFI_MAX_RETRIES    4
+
+static unsigned int wifi_retry_count;
 
 static const char *TAG = "notifier";
 
@@ -33,6 +36,21 @@ static void wifi_event_handler(void *arg, esp_event_base_t event_base, int32_t e
         xEventGroupSetBits(wifi_events, WIFI_CONNECTED_BIT);
     } else if (event_base == WIFI_EVENT && event_id == WIFI_EVENT_STA_DISCONNECTED){
         xEventGroupClearBits(wifi_events, WIFI_CONNECTED_BIT);
+
+        if (wifi_retry_count < WIFI_MAX_RETRIES){
+            wifi_retry_count++;
+
+            ESP_LOGI(TAG, "Retrying Wi-Fi: %u/%u", wifi_retry_count, WIFI_MAX_RETRIES);
+
+            esp_err_t err = esp_wifi_connect();
+
+            if (err == ESP_OK){
+                return;
+            }
+
+            ESP_LOGW(TAG, "Cannot start connection: %s", esp_err_to_name(err));
+        }
+
         xEventGroupSetBits(wifi_events, WIFI_FAILED_BIT);
     }
 }
@@ -87,7 +105,6 @@ static esp_err_t wifi_connect(){
         .sta = {
             .ssid = WIFI_SSID,
             .password = WIFI_PASSWORD,
-            .sae_h2e_identifier = {WPA3_SAE_PWE_BOTH},
         },
     };
 
@@ -96,6 +113,8 @@ static esp_err_t wifi_connect(){
     ESP_ERROR_CHECK(esp_wifi_start());
 
     ESP_LOGI(TAG, "Connecting Wi-Fi...");
+
+    wifi_retry_count = 0;
 
     esp_err_t err = esp_wifi_connect();
 
