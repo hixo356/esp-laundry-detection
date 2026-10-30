@@ -1,0 +1,2 @@
+source /home/piotr/projects/esp-laundry-finished/build/gdbinit/symbols
+source /home/piotr/projects/esp-laundry-finished/build/gdbinit/connect
