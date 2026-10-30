@@ -1,9 +1,0 @@
-{
-  "cmake.configureOnOpen": false,
-  "clangd.path": "/home/piotr/.espressif/tools/esp-clangd/esp-21.1.3_20260408/esp-clangd/bin/clangd",
-  "clangd.arguments": [
-    "--background-index",
-    "--query-driver=/home/piotr/.espressif/tools/xtensa-esp-elf/esp-15.2.0_20251204/xtensa-esp-elf/bin/*",
-    "--compile-commands-dir=${workspaceFolder}/build"
-  ],
-}
