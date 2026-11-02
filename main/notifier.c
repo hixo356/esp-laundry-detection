@@ -143,15 +143,27 @@ static esp_err_t wifi_connect(){
     return err;
 }
 
-esp_err_t notifier_send(){
+esp_err_t notifier_send(notifier_recipient_t recipient){
     esp_err_t wifi_err = wifi_connect();
 
     if (wifi_err != ESP_OK){
         return wifi_err;
     }
 
+    const char *url;
+
+    switch (recipient) {
+        case RECIPIENT_BUTTON_1:
+            url = NTFY_URL_1;
+            break;
+        case RECIPIENT_BUTTON_2:
+            url = NTFY_URL_2;
+        default:
+            return ESP_ERR_INVALID_ARG;
+    }
+
     esp_http_client_config_t http_config = {
-        .url = NTFY_URL,
+        .url = url,
         .method = HTTP_METHOD_POST,
         .crt_bundle_attach = esp_crt_bundle_attach,
         .timeout_ms = 10000,
