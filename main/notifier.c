@@ -144,12 +144,6 @@ static esp_err_t wifi_connect(){
 }
 
 esp_err_t notifier_send(notifier_recipient_t recipient){
-    esp_err_t wifi_err = wifi_connect();
-
-    if (wifi_err != ESP_OK){
-        return wifi_err;
-    }
-
     const char *url;
 
     switch (recipient) {
@@ -158,6 +152,7 @@ esp_err_t notifier_send(notifier_recipient_t recipient){
             break;
         case RECIPIENT_BUTTON_2:
             url = NTFY_URL_2;
+            break;
         default:
             return ESP_ERR_INVALID_ARG;
     }
@@ -168,6 +163,12 @@ esp_err_t notifier_send(notifier_recipient_t recipient){
         .crt_bundle_attach = esp_crt_bundle_attach,
         .timeout_ms = 10000,
     };
+
+    esp_err_t wifi_err = wifi_connect();
+
+    if (wifi_err != ESP_OK){
+        return wifi_err;
+    }
 
     esp_http_client_handle_t client = esp_http_client_init(&http_config);
 
